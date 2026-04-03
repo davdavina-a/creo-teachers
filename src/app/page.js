@@ -5,6 +5,7 @@ import { supabase } from "../lib/supabase";
 import Questionnaire from "../components/Questionnaire";
 import DiagnosticWriting from "../components/DiagnosticWriting";
 import SkillProfile from "../components/SkillProfile";
+import Dashboard from "../components/Dashboard";
 
 export default function Home() {
   const [screen, setScreen] = useState("consent");
@@ -15,6 +16,7 @@ export default function Home() {
   const [error, setError] = useState("");
   const [userId, setUserId] = useState(null);
   const [diagnosticResult, setDiagnosticResult] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
 
   if (screen === "consent") {
     return <ConsentScreen onAgree={() => setScreen("signup")} onDisagree={() => setScreen("declined")} />;
@@ -78,7 +80,8 @@ export default function Home() {
       if (loginError) { setError(loginError.message); setLoading(false); return; }
       setUserId(data.user.id);
       // Check if user already completed questionnaire
-      const { data: profile } = await supabase.from("profiles").select("questionnaire_data").eq("id", data.user.id).single();
+      const { data: profile } = await supabase.from("profiles").select("questionnaire_data, anonymous_id").eq("id", data.user.id).single();
+      setUserProfile(profile);
       if (profile?.questionnaire_data) {
         // Check if diagnostic is done
         const { data: submissions } = await supabase.from("writing_submissions").select("ai_feedback").eq("user_id", data.user.id).eq("submission_type", "diagnostic").limit(1);
@@ -156,15 +159,7 @@ export default function Home() {
   }
 
   if (screen === "dashboard") {
-    return (
-      <div className="container-app" style={{ paddingTop: "3rem", paddingBottom: "3rem" }}>
-        <div className="card" style={{ textAlign: "center", padding: "3rem 1.5rem" }}>
-          <div style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>✓</div>
-          <h2 style={{ fontSize: "1.25rem", marginBottom: "0.75rem" }}>Welcome to Crēo Teachers</h2>
-          <p style={{ color: "var(--color-text-secondary)", fontSize: "0.95rem" }}>Your personalised exercises and learning path are coming in the next phase.</p>
-        </div>
-      </div>
-    );
+    return <Dashboard userId={userId} userProfile={userProfile} />;
   }
 
   return null;

@@ -1,9 +1,10 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "HOTSWrite",
+  title: "Crēo Teachers",
   description:
-    "AI-Integrated Application for Enhancing Higher-Order Thinking Skills in Academic Writing",
+    "AI-integrated application for developing higher-order thinking skills in academic writing",
+  manifest: "/manifest.json",
 };
 
 export const viewport = {
