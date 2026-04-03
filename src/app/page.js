@@ -78,6 +78,12 @@ export default function Home() {
       setError("");
       const { data, error: loginError } = await supabase.auth.signInWithPassword({ email, password });
       if (loginError) { setError(loginError.message); setLoading(false); return; }
+      if (!data.user.email_confirmed_at) {
+        await supabase.auth.signOut();
+        setError("Please confirm your email address before logging in. Check your inbox for the confirmation link.");
+        setLoading(false);
+        return;
+      }
       setUserId(data.user.id);
       // Check if user already completed questionnaire
       const { data: profile } = await supabase.from("profiles").select("questionnaire_data, anonymous_id").eq("id", data.user.id).single();
